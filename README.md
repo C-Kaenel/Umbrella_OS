@@ -59,7 +59,12 @@ Umbrella_OS/
 - A compiled `bzImage` kernel placed at `iso/boot/bzImage`
 - BusyBox binary placed at `rootfs/bin/busybox`
 
-### Steps
+### Quick build
+```bash
+sudo ./build.sh
+```
+
+### Manual steps
 
 **1. Build the initrd:**
 ```bash
@@ -82,11 +87,6 @@ sudo grub-mkrescue -o ../umbrella-os.iso ../iso/
 sudo dd if=../umbrella-os.iso of=/dev/sdX bs=4M status=progress && sync
 ```
 Replace `/dev/sdX` with your USB device (check with `lsblk`).
-
-### Or use the build script:
-```bash
-sudo ./build.sh
-```
 
 ## License
 
