@@ -36,19 +36,20 @@ sudo grub-mkrescue -o ../umbrella-os.iso ../iso/
 \`\`\`
 
 ## Project Structure
+\`\`\`plaintext
 Umbrella_OS/
-├── iso/                    # ISO build directory
+├── iso/
 │   └── boot/
 │       ├── bzImage         # Compiled Linux kernel (not in repo)
 │       ├── initrd.img      # Generated initrd (not in repo)
 │       └── grub/
 │           └── grub.cfg    # GRUB bootloader config
-├── rootfs/                 # Root filesystem
+├── rootfs/
 │   ├── bin/                # BusyBox symlinks (not in repo)
 │   ├── dev/                # Device nodes (not in repo)
 │   ├── etc/                # Config files
-│   ├── proc/               # Kernel process info (mount point)
-│   ├── sys/                # Kernel device info (mount point)
+│   ├── proc/               # Mount point
+│   ├── sys/                # Mount point
 │   ├── tmp/                # Temporary files
 │   ├── root/               # Root home directory
 │   └── init                # Init script (entry point)
@@ -56,7 +57,7 @@ Umbrella_OS/
 ├── .gitignore
 ├── LICENSE
 └── README.md
-
+\`\`\`
 ## License
 
 MIT License
