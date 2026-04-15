@@ -22,21 +22,13 @@ Parts of the documentation (such as this README) may be written with the help of
 ## Boot Support
 
 Tested on:
-- x86_64 laptops
-- Desktop systems
+- x86_64 laptops and desktops
 - QEMU/KVM virtual machines
-
-## Build Instructions
-
-\`\`\`bash
-cd rootfs
-sudo find . | cpio -o -H newc | gzip > /tmp/initrd.img
-sudo cp /tmp/initrd.img ../iso/boot/initrd.img
-sudo grub-mkrescue -o ../umbrella-os.iso ../iso/
-\`\`\`
+- Old hardware (via Minimal boot entry)
 
 ## Project Structure
-\`\`\`plaintext
+
+```plaintext
 Umbrella_OS/
 ├── iso/
 │   └── boot/
@@ -57,7 +49,45 @@ Umbrella_OS/
 ├── .gitignore
 ├── LICENSE
 └── README.md
-\`\`\`
+```
+
+## Build Instructions
+
+### Requirements
+- `grub` with `grub-mkrescue`
+- `cpio`, `gzip`
+- A compiled `bzImage` kernel placed at `iso/boot/bzImage`
+- BusyBox binary placed at `rootfs/bin/busybox`
+
+### Steps
+
+**1. Build the initrd:**
+```bash
+cd rootfs
+sudo find . | sudo cpio -o -H newc | gzip > /tmp/initrd.img
+```
+
+**2. Copy initrd to ISO directory:**
+```bash
+sudo cp /tmp/initrd.img ../iso/boot/initrd.img
+```
+
+**3. Build the ISO:**
+```bash
+sudo grub-mkrescue -o ../umbrella-os.iso ../iso/
+```
+
+**4. Flash to USB:**
+```bash
+sudo dd if=../umbrella-os.iso of=/dev/sdX bs=4M status=progress && sync
+```
+Replace `/dev/sdX` with your USB device (check with `lsblk`).
+
+### Or use the build script:
+```bash
+sudo ./build.sh
+```
+
 ## License
 
 MIT License
