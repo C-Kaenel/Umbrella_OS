@@ -1,0 +1,4 @@
+*.iso
+rootfs/bin/busybox
+iso/boot/bzImage
+iso/boot/initrd.img
