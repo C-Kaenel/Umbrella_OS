@@ -35,10 +35,6 @@ sudo cp /tmp/initrd.img ../iso/boot/initrd.img
 sudo grub-mkrescue -o ../umbrella-os.iso ../iso/
 \`\`\`
 
-## License
-
-MIT License
-
 ## Project Structure
 Umbrella_OS/
 ├── iso/                    # ISO build directory
@@ -60,3 +56,7 @@ Umbrella_OS/
 ├── .gitignore
 ├── LICENSE
 └── README.md
+
+## License
+
+MIT License
