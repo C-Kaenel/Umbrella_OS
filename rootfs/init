@@ -14,7 +14,7 @@ dmesg -n 1
 for CON in /dev/tty0 /dev/ttyS0; do
     clear > $CON 2>/dev/null
     echo "================================" > $CON
-    echo "   Willkommen bei Umbrella OS" > $CON
+    echo "     Welcome to Umbrella OS" > $CON
     echo "================================" > $CON
 done
 export PS1='UmbrellaOS # '
