@@ -1,0 +1,31 @@
+#!/bin/bash
+
+build() {
+    add_binary /home/user/umbrella_os/build/busybox-1.37.0/busybox /bin/busybox
+    add_file /home/user/umbrella_os/scripts/init /init
+    chmod 755 "${BUILDROOT}/init"
+    add_dir /proc
+    add_dir /sys
+    add_dir /dev
+    add_dir /bin
+}
+
+help() {
+    echo "Umbrella OS base hook"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
