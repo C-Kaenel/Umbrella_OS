@@ -9,6 +9,9 @@ build() {
     chmod 755 "${BUILDROOT}/etc/init.d/rcS"
     add_file /home/user/umbrella_os/scripts/udhcpc.script /etc/udhcpc.script
     chmod 755 "${BUILDROOT}/etc/udhcpc.script"
+    add_file /home/user/umbrella_os/scripts/profile /etc/profile
+    add_file /home/user/umbrella_os/scripts/shell /etc/shell
+    chmod 755 "${BUILDROOT}/etc/shell"
     add_dir /proc
     add_dir /sys
     add_dir /dev

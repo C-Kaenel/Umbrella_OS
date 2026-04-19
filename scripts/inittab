@@ -1,4 +1,4 @@
 ::sysinit:/etc/init.d/rcS
-::askfirst:/bin/sh
+::respawn:/bin/busybox cttyhack /etc/shell
 ::ctrlaltdel:/sbin/reboot -f
 ::shutdown:/sbin/poweroff -f
