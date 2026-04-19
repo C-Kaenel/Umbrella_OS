@@ -1,38 +1,11 @@
 #!/bin/busybox sh
 
-# Mount essential filesystems
 /bin/busybox mount -t proc none /proc
 /bin/busybox mount -t sysfs none /sys
 /bin/busybox mount -t devtmpfs none /dev
 
-# Install all busybox symlinks
 /bin/busybox --install -s /bin
 
-# Suppress kernel messages from here on
 dmesg -n 1
 
-# Clear screen and show welcome
-clear
-echo "================================"
-echo "      Welcome to Umbrella OS    "
-echo "================================"
-
-# Start shell
-exec /bin/busybox setsid /bin/busybox cttyhack /bin/sh
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+exec /bin/busybox init
