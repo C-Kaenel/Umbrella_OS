@@ -17,6 +17,10 @@ echo "================================"
 echo "      Welcome to Umbrella OS    "
 echo "================================"
 
+# Netzwerk starten
+ip link set eth0 up
+udhcpc -i eth0 -q -s /etc/udhcpc.script -t 3
+
 # Start shell
 exec /bin/busybox setsid /bin/busybox cttyhack /bin/busybox env PS1='UmbrellaOS # ' /bin/sh
 

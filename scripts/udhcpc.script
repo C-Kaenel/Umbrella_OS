@@ -1,0 +1,15 @@
+#!/bin/sh
+# udhcpc Hook-Script
+
+case "$1" in
+    bound|renew)
+        ip addr flush dev "$interface"
+        ip addr add "$ip/$mask" dev "$interface"
+        [ -n "$router" ] && ip route add default via "$router"
+        [ -n "$dns" ] && printf "nameserver %s\n" $dns > /etc/resolv.conf
+        echo "[net] $interface: $ip via $router"
+        ;;
+    deconfig)
+        ip addr flush dev "$interface"
+        ;;
+esac

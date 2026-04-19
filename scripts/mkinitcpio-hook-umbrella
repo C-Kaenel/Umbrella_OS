@@ -4,28 +4,16 @@ build() {
     add_binary /home/user/umbrella_os/build/busybox-1.37.0/busybox /bin/busybox
     add_file /home/user/umbrella_os/scripts/init /init
     chmod 755 "${BUILDROOT}/init"
+    add_file /home/user/umbrella_os/scripts/udhcpc.script /etc/udhcpc.script
+    chmod 755 "${BUILDROOT}/etc/udhcpc.script"
     add_dir /proc
     add_dir /sys
     add_dir /dev
     add_dir /bin
+    add_dir /etc
 }
 
 help() {
     echo "Umbrella OS base hook"
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
