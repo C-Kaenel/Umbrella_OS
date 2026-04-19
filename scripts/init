@@ -18,7 +18,7 @@ echo "      Welcome to Umbrella OS    "
 echo "================================"
 
 # Start shell
-exec /bin/busybox setsid /bin/busybox cttyhack /bin/sh
+exec /bin/busybox setsid /bin/busybox cttyhack /bin/busybox env PS1='UmbrellaOS # ' /bin/sh
 
 
 
