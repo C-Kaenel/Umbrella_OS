@@ -71,6 +71,3 @@ sudo dd if=umbrella-os.iso of=/dev/sdX bs=4M status=progress conv=fsync
 ## License
 
 MIT License
-
-#Test
-
