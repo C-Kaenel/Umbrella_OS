@@ -1,42 +1,19 @@
 #!/bin/busybox sh
 
-# Mount essential filesystems
 /bin/busybox mount -t proc none /proc
 /bin/busybox mount -t sysfs none /sys
 /bin/busybox mount -t devtmpfs none /dev
 
-# Install all busybox symlinks
 /bin/busybox --install -s /bin
 
-# Suppress kernel messages from here on
 dmesg -n 1
 
-# Clear screen and show welcome
+ip link set eth0 up
+udhcpc -i eth0 -q -s /etc/udhcpc.script -t 3
+
 clear
 echo "================================"
 echo "      Welcome to Umbrella OS    "
 echo "================================"
 
-# Netzwerk starten
-ip link set eth0 up
-udhcpc -i eth0 -q -s /etc/udhcpc.script -t 3
-
-# Start shell
 exec /bin/busybox setsid /bin/busybox cttyhack /bin/busybox env PS1='UmbrellaOS # ' /bin/sh
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
