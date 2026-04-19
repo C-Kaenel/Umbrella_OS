@@ -1,18 +1,14 @@
 # Umbrella OS
 
-Umbrella OS is a privacy-focused Linux distribution built from scratch,
-designed to block tracking and de-anonymization vectors by default,
-without requiring manual configuration.
+Umbrella OS is a privacy-focused Linux distribution built from scratch, designed to block tracking and de-anonymization vectors by default, without requiring manual configuration.
 
 ## Status
 
-Alpha 1 – The system boots into a BusyBox shell on real hardware and QEMU/KVM.
+Alpha 2 – The system boots into a BusyBox shell with networking, poweroff and reboot support on real hardware and QEMU/KVM.
 
 ## Disclaimer
 
-This project is experimental and under active development.
-Parts of the documentation may be written with the help of AI due to limited
-writing experience. The system itself is being developed with minimized AI usage.
+This project is experimental and under active development. Parts of the documentation may be written with the help of AI due to limited writing experience. The system itself is being developed with minimized AI usage.
 
 ## Goals
 
@@ -24,7 +20,7 @@ writing experience. The system itself is being developed with minimized AI usage
 - Full disk encryption (LUKS)
 - Automatic metadata stripping from files
 
-## Components – Alpha 1
+## Components
 
 - Linux kernel 6.12.25 LTS
 - BusyBox 1.37.0 (statically compiled)
@@ -50,7 +46,7 @@ Tested on:
 ### Requirements
 
 - Arch Linux host system
-- Packages: grub, mkinitcpio, qemu
+- Packages: `grub`, `mkinitcpio`, `qemu`
 - Pre-compiled kernel in `build/kernel/linux-6.12.25/`
 - Pre-compiled BusyBox in `build/busybox-1.37.0/`
 
@@ -63,7 +59,7 @@ sudo bash scripts/build.sh
 ### Test in QEMU
 
 ```bash
-qemu-system-x86_64 -cdrom umbrella-os.iso -m 512M
+qemu-system-x86_64 -cdrom umbrella-os.iso -m 512M -netdev user,id=net0 -device e1000,netdev=net0
 ```
 
 ### Flash to USB
