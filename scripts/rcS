@@ -1,0 +1,7 @@
+#!/bin/sh
+ip link set eth0 up
+udhcpc -i eth0 -q -s /etc/udhcpc.script -t 3
+clear
+echo "================================"
+echo "      Welcome to Umbrella OS    "
+echo "================================"

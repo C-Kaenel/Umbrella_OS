@@ -8,12 +8,4 @@
 
 dmesg -n 1
 
-ip link set eth0 up
-udhcpc -i eth0 -q -s /etc/udhcpc.script -t 3
-
-clear
-echo "================================"
-echo "      Welcome to Umbrella OS    "
-echo "================================"
-
-exec /bin/busybox setsid /bin/busybox cttyhack /bin/busybox env PS1='UmbrellaOS # ' /bin/sh
+exec /bin/busybox init
