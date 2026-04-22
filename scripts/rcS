@@ -1,7 +1,13 @@
 #!/bin/sh
-ip link set eth0 up
-udhcpc -i eth0 -q -s /etc/udhcpc.script -t 3
+
+for iface in $(ls /sys/class/net/); do
+    [ "$iface" = "lo" ] && continue
+    ip link set "$iface" up
+    udhcpc -i "$iface" -q -s /etc/udhcpc.script -t 3 -T 2 -n 2>/dev/null && break
+done
+
 export PS1='UmbrellaOS # '
+
 clear
 echo "================================"
 echo "      Welcome to Umbrella OS    "
