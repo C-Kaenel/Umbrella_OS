@@ -2,3 +2,4 @@
 build/
 iso/boot/vmlinuz
 iso/boot/initramfs.img
+iso/grub-files/

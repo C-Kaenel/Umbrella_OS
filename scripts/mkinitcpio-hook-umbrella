@@ -20,6 +20,8 @@ build() {
     add_binary /usr/sbin/grub-install
     add_binary /usr/bin/grub-mkconfig
     add_binary /usr/bin/lsblk
+    add_full_dir /usr/lib/grub/x86_64-efi
+    add_full_dir /usr/share/grub
     add_dir /proc
     add_dir /sys
     add_dir /dev
@@ -29,6 +31,10 @@ build() {
     add_dir /sbin
     add_dir /mnt
     add_dir /installer
+    add_dir /usr
+    add_dir /usr/lib
+    add_dir /usr/lib/grub
+    add_dir /usr/share
 }
 
 help() {

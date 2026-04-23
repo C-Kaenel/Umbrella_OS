@@ -11,6 +11,8 @@ echo ""
 
 printf "Enter target disk (e.g. sda): "
 read DISK
+[ -z "$DISK" ] && echo "No disk entered. Aborted." && exit 1
+[ ! -b "/dev/$DISK" ] && echo "/dev/$DISK not found. Aborted." && exit 1
 
 echo ""
 echo "WARNING: All data on /dev/$DISK will be destroyed."
@@ -28,6 +30,10 @@ parted -s /dev/$DISK mkpart primary ext4 257MiB 100%
 
 echo "Formatting partitions..."
 
+sleep 1
+partprobe /dev/$DISK 2>/dev/null || true
+sleep 1
+
 mkfs.fat -F32 /dev/${DISK}1
 mkfs.ext4 -F /dev/${DISK}2
 
@@ -39,7 +45,11 @@ mount /dev/${DISK}1 /mnt/boot/efi
 
 echo "Copying system files..."
 
-cp -a /. /mnt/
+cp -a /bin /mnt/
+cp -a /etc /mnt/
+cp -a /sbin /mnt/
+cp -a /installer /mnt/
+mkdir -p /mnt/proc /mnt/sys /mnt/dev /mnt/tmp
 
 echo "Installing GRUB..."
 
