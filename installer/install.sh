@@ -22,43 +22,47 @@ read CONFIRM
 [ "$CONFIRM" != "YES" ] && echo "Aborted." && exit 1
 
 echo "Partitioning /dev/$DISK..."
-
 parted -s /dev/$DISK mklabel gpt
 parted -s /dev/$DISK mkpart primary fat32 1MiB 257MiB
 parted -s /dev/$DISK set 1 esp on
 parted -s /dev/$DISK mkpart primary ext4 257MiB 100%
 
 echo "Formatting partitions..."
-
 sleep 1
 partprobe /dev/$DISK 2>/dev/null || true
 sleep 1
-
 mkfs.fat -F32 /dev/${DISK}1
 mkfs.ext4 -F /dev/${DISK}2
 
 echo "Mounting partitions..."
-
 mount /dev/${DISK}2 /mnt
 mkdir -p /mnt/boot/efi
 mount /dev/${DISK}1 /mnt/boot/efi
 
 echo "Copying system files..."
-
 cp -a /bin /mnt/
 cp -a /etc /mnt/
 cp -a /sbin /mnt/
 cp -a /installer /mnt/
+cp /boot/vmlinuz /mnt/boot/
+cp /boot/initramfs.img /mnt/boot/
 mkdir -p /mnt/proc /mnt/sys /mnt/dev /mnt/tmp
 
 echo "Installing GRUB..."
-
 grub-install --target=x86_64-efi --efi-directory=/mnt/boot/efi --boot-directory=/mnt/boot --removable /dev/$DISK
 
-grub-mkconfig -o /mnt/boot/grub/grub.cfg
+mkdir -p /mnt/boot/grub
+cat > /mnt/boot/grub/grub.cfg << 'EOF'
+set default=0
+set timeout=5
+
+menuentry "Umbrella OS" {
+    linux /boot/vmlinuz rdinit=/init loglevel=3
+    initrd /boot/initramfs.img
+}
+EOF
 
 echo "Unmounting..."
-
 umount /mnt/boot/efi
 umount /mnt
 

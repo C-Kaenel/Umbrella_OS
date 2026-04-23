@@ -14,6 +14,9 @@ build() {
     chmod 755 "${BUILDROOT}/etc/shell"
     add_file /home/user/umbrella_os/installer/install.sh /installer/install.sh
     chmod 755 "${BUILDROOT}/installer/install.sh"
+    add_dir /boot
+    add_file /home/user/umbrella_os/iso/boot/vmlinuz /boot/vmlinuz
+    add_file /home/user/umbrella_os/iso/boot/initramfs.img /boot/initramfs.img
     add_binary /usr/bin/parted
     add_binary /usr/bin/mkfs.fat
     add_binary /usr/sbin/mkfs.ext4
