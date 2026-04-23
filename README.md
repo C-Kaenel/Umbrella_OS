@@ -4,7 +4,7 @@ Umbrella OS is a privacy-focused Linux distribution built from scratch, designed
 
 ## Status
 
-Alpha 2 – The system boots into a BusyBox shell with networking, poweroff and reboot support on real hardware and QEMU/KVM.
+Alpha 3 – The system boots into a BusyBox shell with networking, poweroff, reboot support, and a working installer that installs Umbrella OS permanently to disk.
 
 ## Disclaimer
 
@@ -30,7 +30,7 @@ This project is experimental and under active development. Parts of the document
 ## Roadmap
 
 - [x] Phase 1 – Minimal bootable system
-- [ ] Phase 2 – Installer, partitioning and LUKS encryption
+- [x] Phase 2 – Installer, partitioning, GRUB
 - [ ] Phase 3 – Privacy hardening and configuration layer
 - [ ] Phase 4 – Desktop and everyday applications
 
@@ -46,7 +46,7 @@ Tested on:
 ### Requirements
 
 - Arch Linux host system
-- Packages: `grub`, `mkinitcpio`, `qemu`
+- Packages: `grub`, `mkinitcpio`, `qemu`, `parted`
 - Pre-compiled kernel in `build/kernel/linux-6.12.25/`
 - Pre-compiled BusyBox in `build/busybox-1.37.0/`
 
@@ -60,6 +60,14 @@ sudo bash scripts/build.sh
 
 ```bash
 qemu-system-x86_64 -cdrom umbrella-os.iso -m 512M -netdev user,id=net0 -device e1000,netdev=net0
+```
+
+### Install to Disk
+
+Boot from ISO, then run:
+
+```bash
+/installer/install.sh
 ```
 
 ### Flash to USB
