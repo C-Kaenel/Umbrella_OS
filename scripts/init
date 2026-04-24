@@ -1,11 +1,16 @@
 #!/bin/busybox sh
+umask 022
 
-/bin/busybox mount -t proc none /proc
-/bin/busybox mount -t sysfs none /sys
-/bin/busybox mount -t devtmpfs none /dev
+/bin/busybox mount -t proc none /proc		|| echo "[FATAL] Cannot mount /proc"
+/bin/busybox mount -t sysfs none /sys		|| echo "[FATAL] Cannot mount /sys"
+/bin/busybox mount -t devtmpfs none /dev	|| echo "[FATAL] Cannot mount /dev"
+
+# Currently not in use
+/bin/busybox mkdir -p /dev/pts
+/bin/busybox mount -t devpts devpts /dev/pts || echo "[WARNING] Cannot mount /dev/pts"
 
 /bin/busybox --install -s /bin
 
-dmesg -n 1
+dmesg -n 3
 
 exec /bin/busybox init
