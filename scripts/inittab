@@ -1,4 +1,5 @@
-::sysinit:/etc/init.d/rcS
-::respawn:/bin/busybox cttyhack /etc/shell
+null::sysinit:/sbin/ip link set lo up
+null::sysinit:/etc/init.d/rcS
+tty1::respawn:/bin/busybox cttyhack /etc/shell
 ::ctrlaltdel:/sbin/reboot -f
 ::shutdown:/sbin/poweroff -f

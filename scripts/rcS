@@ -1,14 +1,7 @@
 #!/bin/sh
-
-for iface in $(ls /sys/class/net/); do
+for iface in /sys/class/net/*/; do
+    iface=$(basename "$iface")
     [ "$iface" = "lo" ] && continue
     ip link set "$iface" up
-    udhcpc -i "$iface" -q -s /etc/udhcpc.script -t 3 -T 2 -n 2>/dev/null && break
+    udhcpc -i "$iface" -q -s /etc/udhcpc.script -t 3 -T 2 -n && break
 done
-
-export PS1='UmbrellaOS # '
-
-clear
-echo "================================"
-echo "      Welcome to Umbrella OS    "
-echo "================================"
