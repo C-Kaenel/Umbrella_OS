@@ -1,59 +1,105 @@
 # Umbrella OS
 
-Umbrella OS is a privacy-focused Linux distribution built from scratch, designed to block tracking and de-anonymization vectors by default, without requiring manual configuration.
+A privacy-first Linux distribution that blocks tracking and de-anonymization vectors by default – no manual configuration required. Built to be used as a daily driver.
 
-## Status
+**Status:** Alpha – boots into a working shell with networking on real hardware and QEMU/KVM.
 
-Alpha 3 – The system boots into a BusyBox shell with networking, poweroff, reboot support, and a working installer that installs Umbrella OS permanently to disk.
+**Audience:** Umbrella OS is intended for advanced users who are comfortable with Linux, the command line, and understand the security concepts involved.
 
-## Disclaimer
+---
 
-This project is experimental and under active development. Parts of the documentation may be written with the help of AI due to limited writing experience. The system itself is being developed with minimized AI usage.
+## Table of Contents
 
-## Goals
+- [What is Umbrella OS](#what-is-umbrella-os)
+- [Download](#download)
+- [Features](#features)
+- [Threat Model](#threat-model)
+- [Build from Source](#build-from-source)
+- [Project Structure](#project-structure)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
 
-- Block hardware identifiers (CPU serial, MAC address, TPM)
-- Enforce encrypted DNS (DoH/DoT)
-- Normalize browser fingerprints
-- Provide self-hosted VPN remote access
-- Ensure zero telemetry by default
-- Full disk encryption (LUKS)
-- Automatic metadata stripping from files
+---
 
-## Components
+## What is Umbrella OS
 
-- Linux kernel 6.12.25 LTS
-- BusyBox 1.37.0 (statically compiled)
-- GRUB bootloader
-- mkinitcpio initramfs
+Umbrella OS is a minimal Linux distribution built from scratch using the Linux kernel, BusyBox, GRUB, and mkinitcpio. It is not based on any existing distribution such as Ubuntu, Debian, or Arch Linux.
 
-## Roadmap
+The goal is a daily-drivable system where every known tracking and de-anonymization vector is blocked by default – without requiring the user to configure anything manually. Every protection mechanism is individually toggleable.
 
-- [x] Phase 1 – Minimal bootable system
-- [x] Phase 2 – Installer, partitioning, GRUB
-- [ ] Phase 3 – Privacy hardening and configuration layer
-- [ ] Phase 4 – Desktop and everyday applications
+---
 
-## Boot Support
+## Download
 
-Tested on:
+You do not need to build Umbrella OS yourself. Download the latest ISO and flash it to a USB drive.
 
-- x86_64 laptops and desktops
-- QEMU/KVM virtual machines
+Releases will be published on the [Releases](https://github.com/C-Kaenel/Umbrella_OS/releases) page once Alpha stabilizes.
 
-## Build Instructions
+Flash to USB:
+
+```bash
+sudo dd if=umbrella-os.iso of=/dev/sdX bs=4M status=progress conv=fsync
+```
+
+Replace `/dev/sdX` with your USB drive. Boot from USB and run the installer:
+
+```bash
+/installer/install.sh
+```
+
+---
+
+## Features
+
+| Feature | Status |
+|---|---|
+| Boots into BusyBox shell | Done |
+| Automatic network via DHCP | Done |
+| MAC address randomization on every boot | Done |
+| Installer for real hardware (GPT + EFI + ext4) | Done |
+| DNS over HTTPS | In Progress |
+| LUKS full disk encryption | In Progress |
+| Kernel hardening | In Progress |
+| Privacy-hardened browser | Planned |
+| Self-hosted VPN remote access | Planned |
+| Desktop environment | Planned |
+
+---
+
+## Threat Model
+
+Umbrella OS addresses four categories of threats:
+
+**1. Hardware / OS level**
+Hardware identifiers such as CPU serial numbers, MAC addresses, and TPM keys are not transmitted to external services. MAC addresses are randomized on every boot. No OS telemetry of any kind is present.
+
+**2. Network / ISP level**
+DNS queries are encrypted via DoH/DoT over trusted resolvers. WebRTC is disabled to prevent IP leaks. Optional Tor and VPN integration with leak protection is planned.
+
+**3. Browser level**
+The included browser will present a unified, generic fingerprint. Third-party cookies, supercookies, tracking pixels, and cross-site tracking are blocked. Per-service container isolation is planned.
+
+**4. Secure remote access**
+A self-hosted VPN tunnel provides remote access. When disabled, no ports are open and no background processes remain running.
+
+---
+
+## Build from Source
 
 ### Requirements
 
-- Arch Linux host system
-- Packages: `grub`, `mkinitcpio`, `qemu`, `parted`
-- Pre-compiled kernel in `build/kernel/linux-6.12.25/`
-- Pre-compiled BusyBox in `build/busybox-1.37.0/`
+- Arch Linux host
+- Linux kernel 6.12.25 compiled in `build/kernel/linux-6.12.25/`
+- BusyBox 1.37.0 compiled in `build/busybox-1.37.0/`
+- `grub`, `mkinitcpio`, `parted`, `dosfstools`, `e2fsprogs` installed on the host
 
-### Build ISO
+### Build
 
 ```bash
-sudo bash scripts/build.sh
+git clone https://github.com/C-Kaenel/Umbrella_OS.git
+cd Umbrella_OS
+sudo bash ./scripts/build.sh
 ```
 
 ### Test in QEMU
@@ -62,20 +108,59 @@ sudo bash scripts/build.sh
 qemu-system-x86_64 -cdrom umbrella-os.iso -m 512M -netdev user,id=net0 -device e1000,netdev=net0
 ```
 
-### Install to Disk
+---
 
-Boot from ISO, then run:
+## Project Structure
+umbrella_os/
+├── config/
+│   ├── busybox.config
+│   ├── kernel.config
+│   └── mkinitcpio.conf
+├── installer/
+│   └── install.sh
+├── iso/
+│   └── boot/
+│       └── grub/
+│           └── grub.cfg
+├── scripts/
+│   ├── build.sh
+│   ├── init
+│   ├── inittab
+│   ├── mkinitcpio-hook-umbrella
+│   ├── profile
+│   ├── rcS
+│   ├── shell
+│   └── udhcpc.script
+├── SECURITY.md
+├── CONTRIBUTING.md
+├── .gitignore
+├── LICENSE
+└── README.md
 
-```bash
-/installer/install.sh
-```
+---
 
-### Flash to USB
+## Roadmap
 
-```bash
-sudo dd if=umbrella-os.iso of=/dev/sdX bs=4M status=progress conv=fsync
-```
+- **Alpha** – Bootable system with installer
+- **Alpha 4** – Script hardening, MAC randomization, reduced ISO size
+- **Beta** – DNS over HTTPS, LUKS full disk encryption, kernel hardening
+- **1.0** – Desktop environment, privacy-hardened browser, full daily driver
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Security vulnerabilities must be reported privately – see [SECURITY.md](SECURITY.md).
+
+---
 
 ## License
 
-MIT License
+MIT License – see [LICENSE](LICENSE) for details.
+
+---
+
+## Disclaimer
+
+This project is experimental and under active development. It is not yet suitable for use as a primary system. Parts of the documentation may be written with AI assistance. The system itself is developed with minimized AI usage.
