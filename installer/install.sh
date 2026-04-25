@@ -9,6 +9,17 @@ cleanup() {
 }
 trap cleanup EXIT
 
+wait_for_partition() {
+    local part="$1"
+    local retries=10
+    while [ $retries -gt 0 ]; do
+        [ -b "$part" ] && return 0
+        sleep 1
+        retries=$((retries - 1))
+    done
+    return 1
+}
+
 clear
 echo "================================"
 echo "    Umbrella OS Installer       "
@@ -36,7 +47,7 @@ parted -s /dev/$DISK set 1 esp on
 parted -s /dev/$DISK mkpart primary ext4 257MiB 100%
 
 log "Waiting for kernel to register partitions..."
-udevadm settle
+wait_for_partition /dev/${DISK}1 || { log "[ERROR] Partition not found"; exit 1; }
 
 log "Formatting partitions..."
 mkfs.fat -F32 /dev/${DISK}1
