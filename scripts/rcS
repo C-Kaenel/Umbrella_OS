@@ -1,7 +1,37 @@
 #!/bin/sh
+
+# Mac Randomisierung 
+random_mac() {
+    local hex="0123456789abcdef"
+    local mac=""
+    local i=0
+    while [ $i -lt 6 ]; do
+        local byte=""
+        byte="${hex:$((RANDOM % 16)):1}${hex:$((RANDOM % 16)):1}"
+        if [ $i -eq 0 ]; then
+            # Force locally administered unicast: second nibble must be 2,6,a,e
+            local valid="268ace"
+            byte="${hex:$((RANDOM % 16)):1}${valid:$((RANDOM % 6)):1}"
+        fi
+        [ -n "$mac" ] && mac="${mac}:"
+        mac="${mac}${byte}"
+        i=$((i + 1))
+    done
+    echo "$mac"
+}
+
+# Normal connection. Start after Rndomising
+
 for iface in /sys/class/net/*/; do
     iface=$(basename "$iface")
     [ "$iface" = "lo" ] && continue
+
+    # Assign random MAC before bringing interface up
+    mac=$(random_mac)
+    ip link set "$iface" down 2>/dev/null
+    ip link set "$iface" address "$mac"
     ip link set "$iface" up
+    echo "[mac] $iface: $mac"
+
     udhcpc -i "$iface" -q -s /etc/udhcpc.script -t 3 -T 2 -n && break
 done
