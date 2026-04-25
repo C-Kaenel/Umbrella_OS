@@ -1,15 +1,36 @@
 #!/bin/sh
-# udhcpc Hook-Script
+
+mask2cidr() {
+    local mask="$1"
+    local cidr=0
+    for octet in $(echo "$mask" | tr '.' ' '); do
+        case "$octet" in
+            255) cidr=$((cidr + 8)) ;;
+            254) cidr=$((cidr + 7)) ;;
+            252) cidr=$((cidr + 6)) ;;
+            248) cidr=$((cidr + 5)) ;;
+            240) cidr=$((cidr + 4)) ;;
+            224) cidr=$((cidr + 3)) ;;
+            192) cidr=$((cidr + 2)) ;;
+            128) cidr=$((cidr + 1)) ;;
+        esac
+    done
+    echo "$cidr"
+}
 
 case "$1" in
     bound|renew)
+        cidr=$(mask2cidr "$mask")
+        [ "$cidr" = "0" ] && cidr=24
         ip addr flush dev "$interface"
-        ip addr add "$ip/$mask" dev "$interface"
+        ip addr add "$ip/$cidr" dev "$interface"
         [ -n "$router" ] && ip route add default via "$router"
+        # TODO Phase 3: Replace with DoH resolver, do not use ISP-provided DNS
         [ -n "$dns" ] && printf "nameserver %s\n" $dns > /etc/resolv.conf
-        echo "[net] $interface: $ip via $router"
+        echo "[net] $interface: $ip/$cidr via $router"
         ;;
     deconfig)
         ip addr flush dev "$interface"
+        ip route del default 2>/dev/null || true
         ;;
 esac

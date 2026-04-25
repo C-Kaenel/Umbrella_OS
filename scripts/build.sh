@@ -15,6 +15,7 @@ mkdir -p "$ISO_DIR/grub-files/usr/lib/grub"
 mkdir -p "$ISO_DIR/grub-files/usr/share/grub"
 cp -a /usr/lib/grub/x86_64-efi "$ISO_DIR/grub-files/usr/lib/grub/"
 cp -a /usr/share/grub/* "$ISO_DIR/grub-files/usr/share/grub/" 2>/dev/null || true
+touch "$ISO_DIR/boot/initramfs.img"
 
 echo "==> Building initramfs with mkinitcpio..."
 sudo mkinitcpio -c "$CONFIG_DIR/mkinitcpio.conf" -g "$ISO_DIR/boot/initramfs.img"

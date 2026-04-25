@@ -20,8 +20,7 @@ build() {
     add_binary /usr/bin/parted
     add_binary /usr/bin/mkfs.fat
     add_binary /usr/sbin/mkfs.ext4
-    add_binary /usr/sbin/grub-install
-    add_binary /usr/bin/grub-mkconfig
+    add_binary /usr/sbin/grub-install 
     add_binary /usr/bin/lsblk
     add_full_dir /usr/lib/grub/x86_64-efi
     add_full_dir /usr/share/grub
