@@ -14,14 +14,11 @@ build() {
     chmod 755 "${BUILDROOT}/etc/shell"
     add_file /home/user/umbrella_os/installer/install.sh /installer/install.sh
     chmod 755 "${BUILDROOT}/installer/install.sh"
-    add_dir /boot
-    add_binary /usr/bin/udevadm
-    add_file /home/user/umbrella_os/iso/boot/vmlinuz /boot/vmlinuz
-    add_file /home/user/umbrella_os/iso/boot/initramfs.img /boot/initramfs.img
     add_binary /usr/bin/parted
     add_binary /usr/bin/mkfs.fat
     add_binary /usr/sbin/mkfs.ext4
-    add_binary /usr/sbin/grub-install 
+    add_binary /usr/sbin/grub-install
+    add_binary /usr/bin/udevadm
     add_binary /usr/bin/lsblk
     add_full_dir /usr/lib/grub/x86_64-efi
     add_full_dir /usr/share/grub
@@ -38,6 +35,7 @@ build() {
     add_dir /usr/lib
     add_dir /usr/lib/grub
     add_dir /usr/share
+    add_dir /boot
 }
 
 help() {
