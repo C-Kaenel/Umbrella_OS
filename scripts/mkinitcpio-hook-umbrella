@@ -15,6 +15,7 @@ build() {
     add_file /home/user/umbrella_os/installer/install.sh /installer/install.sh
     chmod 755 "${BUILDROOT}/installer/install.sh"
     add_dir /boot
+    add_binary /usr/bin/udevadm
     add_file /home/user/umbrella_os/iso/boot/vmlinuz /boot/vmlinuz
     add_file /home/user/umbrella_os/iso/boot/initramfs.img /boot/initramfs.img
     add_binary /usr/bin/parted
