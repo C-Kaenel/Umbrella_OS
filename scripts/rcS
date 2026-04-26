@@ -20,6 +20,10 @@ random_mac() {
     echo "$mac"
 }
 
+# DNS IP not ther
+
+/usr/sbin/unbound -c /etc/unbound/unbound.conf
+
 # Normal connection. Start after Rndomising
 
 for iface in /sys/class/net/*/; do

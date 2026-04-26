@@ -33,6 +33,16 @@ build() {
     add_dir /usr
     add_dir /usr/lib
     add_dir /usr/lib/grub
+    add_file /home/user/umbrella_os/rootfs/usr/sbin/unbound /usr/sbin/unbound
+    add_file /home/user/umbrella_os/rootfs/etc/unbound/unbound.conf /etc/unbound/unbound.conf
+    add_file /home/user/umbrella_os/rootfs/etc/unbound/root.hints /etc/unbound/root.hints
+    add_file /home/user/umbrella_os/rootfs/etc/resolv.conf /etc/resolv.conf
+    add_dir /usr/sbin
+    add_dir /etc/unbound
+    add_dir /var
+    add_dir /var/lib
+    add_dir /var/lib/unbound
+    add_dir /var/log
     add_dir /usr/share
     add_dir /boot
 }
