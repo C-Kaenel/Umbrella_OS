@@ -6,7 +6,7 @@ Umbrella OS is currently in early development (Alpha). Only the latest commit on
 
 | Version | Supported |
 |---|---|
-| Alpha (main) | Yes |
+| Main (Newest)| Yes |
 | Older commits | No |
 
 ## Reporting a Vulnerability
