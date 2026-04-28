@@ -111,6 +111,8 @@ qemu-system-x86_64 -cdrom umbrella-os.iso -m 512M -netdev user,id=net0 -device e
 ---
 
 ## Project Structure
+Curently outdated 
+
 ```text
 umbrella_os/
 ├── config/
