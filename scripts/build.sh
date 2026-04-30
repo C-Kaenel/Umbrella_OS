@@ -31,7 +31,7 @@ sudo cp "$ROOT_DIR/scripts/mkinitcpio-hook-umbrella" /etc/initcpio/install/umbre
 
 touch "$ISO_DIR/boot/initramfs.img"
 echo "==> [$(date +%H:%M:%S)] Building initramfs with mkinitcpio..."
-sudo mkinitcpio -c "$CONFIG_DIR/mkinitcpio.conf" -g "$ISO_DIR/boot/initramfs.img"
+sudo mkinitcpio -k "$(ls /lib/modules/ | grep lts | tail -1)" -c "$CONFIG_DIR/mkinitcpio.conf" -g "$ISO_DIR/boot/initramfs.img"
 
 echo "==> [$(date +%H:%M:%S)] Building ISO with grub-mkrescue..."
 grub-mkrescue -o "$OUTPUT_ISO" "$ISO_DIR"

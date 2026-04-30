@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Mac Randomisierung 
+# MAC Randomisierung
 random_mac() {
     local hex="0123456789abcdef"
     local mac=""
@@ -9,7 +9,6 @@ random_mac() {
         local byte=""
         byte="${hex:$((RANDOM % 16)):1}${hex:$((RANDOM % 16)):1}"
         if [ $i -eq 0 ]; then
-            # Force locally administered unicast: second nibble must be 2,6,a,e
             local valid="268ace"
             byte="${hex:$((RANDOM % 16)):1}${valid:$((RANDOM % 6)):1}"
         fi
@@ -20,17 +19,11 @@ random_mac() {
     echo "$mac"
 }
 
-# DNS IP not ther
-
-/usr/sbin/unbound -c /etc/unbound/unbound.conf
-
-# Normal connection. Start after Rndomising
-
+# Network setup with MAC randomization
 for iface in /sys/class/net/*/; do
     iface=$(basename "$iface")
     [ "$iface" = "lo" ] && continue
 
-    # Assign random MAC before bringing interface up
     mac=$(random_mac)
     ip link set "$iface" down 2>/dev/null
     ip link set "$iface" address "$mac"
@@ -40,7 +33,13 @@ for iface in /sys/class/net/*/; do
     udhcpc -i "$iface" -q -s /etc/udhcpc.script -t 3 -T 2 -n && break
 done
 
-# Pre-warm DNS cache for common privacy-friendly services
+# Fetch and verify DNSSEC root trust anchor (requires network)
+/usr/sbin/unbound-anchor -a /etc/unbound/root.key || true
+
+# Start recursive DNS resolver
+/usr/sbin/unbound -c /etc/unbound/unbound.conf
+
+# Pre-warm DNS cache
 for domain in duckduckgo.com startpage.com protonmail.com signal.org; do
     /usr/sbin/unbound-host -C /etc/unbound/unbound.conf "$domain" >/dev/null 2>&1 &
 done
