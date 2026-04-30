@@ -39,3 +39,8 @@ for iface in /sys/class/net/*/; do
 
     udhcpc -i "$iface" -q -s /etc/udhcpc.script -t 3 -T 2 -n && break
 done
+
+# Pre-warm DNS cache for common privacy-friendly services
+for domain in duckduckgo.com startpage.com protonmail.com signal.org; do
+    /usr/sbin/unbound-host -C /etc/unbound/unbound.conf "$domain" >/dev/null 2>&1 &
+done
