@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# MAC Randomisierung
 random_mac() {
     local hex="0123456789abcdef"
     local mac=""
@@ -30,16 +29,11 @@ for iface in /sys/class/net/*/; do
     ip link set "$iface" up
     echo "[mac] $iface: $mac"
 
-    udhcpc -i "$iface" -q -s /etc/udhcpc.script -t 3 -T 2 -n && break
+    udhcpc -i "$iface" -q -s /etc/udhcpc.script -t 2 -T 1 -n && break
 done
 
-# Fetch and verify DNSSEC root trust anchor (requires network)
-/usr/sbin/unbound-anchor -a /etc/unbound/root.key || true
+# Fetch DNSSEC root anchor in background (non-blocking)
+/usr/sbin/unbound-anchor -a /etc/unbound/root.key >/dev/null 2>&1 &
 
-# Start recursive DNS resolver
+# Start DNS resolver
 /usr/sbin/unbound -c /etc/unbound/unbound.conf
-
-# Pre-warm DNS cache
-for domain in duckduckgo.com startpage.com protonmail.com signal.org; do
-    /usr/sbin/unbound-host -C /etc/unbound/unbound.conf "$domain" >/dev/null 2>&1 &
-done
