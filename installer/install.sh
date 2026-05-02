@@ -84,19 +84,24 @@ mkdir -p /mnt/boot/efi
 mount $PART1 /mnt/boot/efi
 
 log "Finding boot source..."
+log "Available block devices:"
+cat /proc/partitions
 mkdir -p /tmp/src
 for dev in $(list_all_block_devices); do
     [ -b "$dev" ] || continue
     case "$dev" in
         /dev/${DISK}*) continue ;;
     esac
-    mount -t iso9660 "$dev" /tmp/src 2>/dev/null || \
-    mount -o ro "$dev" /tmp/src 2>/dev/null || continue
+    log "Trying $dev..."
+    mount -t iso9660 "$dev" /tmp/src && log "Mounted iso9660 on $dev" || \
+    mount -o ro "$dev" /tmp/src && log "Mounted ro on $dev" || \
+    { log "Cannot mount $dev"; continue; }
     if [ -f /tmp/src/boot/vmlinuz ] && [ -f /tmp/src/boot/initramfs.img ]; then
         BOOT_SRC=/tmp/src/boot
         log "Boot source found on $dev"
         break
     fi
+    log "$dev mounted but no boot files found"
     umount /tmp/src 2>/dev/null
 done
 
