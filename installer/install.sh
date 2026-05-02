@@ -61,12 +61,17 @@ mount /dev/${DISK}1 /mnt/boot/efi
 
 log "Finding boot source..."
 mkdir -p /tmp/src
-for dev in /dev/sd* /dev/vd*; do
+CANDIDATES=$(lsblk -rno NAME,TYPE | awk '$2=="disk" || $2=="part" || $2=="rom" {print "/dev/"$1}')
+for dev in $CANDIDATES; do
     [ -b "$dev" ] || continue
-    [ "$dev" = "/dev/$DISK" ] && continue
-    mount "$dev" /tmp/src 2>/dev/null || continue
-    if [ -f /tmp/src/boot/vmlinuz ]; then
+    case "$dev" in
+        /dev/${DISK}*) continue ;;
+    esac
+    mount -t iso9660 "$dev" /tmp/src 2>/dev/null || \
+    mount -o ro "$dev" /tmp/src 2>/dev/null || continue
+    if [ -f /tmp/src/boot/vmlinuz ] && [ -f /tmp/src/boot/initramfs.img ]; then
         BOOT_SRC=/tmp/src/boot
+        log "Boot source found on $dev"
         break
     fi
     umount /tmp/src 2>/dev/null
@@ -79,8 +84,8 @@ cp -a /bin /mnt/
 cp -a /etc /mnt/
 cp -a /sbin /mnt/
 cp -a /installer /mnt/
-cp "$BOOT_SRC/vmlinuz" /mnt/boot/
-cp "$BOOT_SRC/initramfs.img" /mnt/boot/
+cp "$BOOT_SRC/vmlinuz" /mnt/boot/ || { log "[ERROR] Failed to copy vmlinuz"; exit 1; }
+cp "$BOOT_SRC/initramfs.img" /mnt/boot/ || { log "[ERROR] Failed to copy initramfs.img"; exit 1; }
 mkdir -p /mnt/proc /mnt/sys /mnt/dev /mnt/tmp
 umount /tmp/src 2>/dev/null
 
