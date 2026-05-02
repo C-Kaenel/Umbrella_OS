@@ -29,7 +29,7 @@ echo ""
 lsblk -d -o NAME,SIZE,MODEL | grep -v loop
 echo ""
 
-printf "Enter target disk (e.g. sda): "
+printf "Enter target disk (e.g. sda, nvme0n1): "
 read DISK
 [ -z "$DISK" ] && log "No disk entered. Aborted." && exit 1
 [ ! -b "/dev/$DISK" ] && log "/dev/$DISK not found. Aborted." && exit 1
@@ -46,24 +46,34 @@ parted -s /dev/$DISK mkpart primary fat32 1MiB 257MiB
 parted -s /dev/$DISK set 1 esp on
 parted -s /dev/$DISK mkpart primary ext4 257MiB 100%
 
+# NVMe Partitionen heissen nvme0n1p1, SATA heissen sda1
+if echo "$DISK" | grep -q "nvme"; then
+    PART1="/dev/${DISK}p1"
+    PART2="/dev/${DISK}p2"
+else
+    PART1="/dev/${DISK}1"
+    PART2="/dev/${DISK}2"
+fi
+
 log "Waiting for kernel to register partitions..."
-wait_for_partition /dev/${DISK}1 || { log "[ERROR] Partition not found"; exit 1; }
-wait_for_partition /dev/${DISK}2 || { log "[ERROR] Partition not found"; exit 1; }
+wait_for_partition $PART1 || { log "[ERROR] Partition 1 not found"; exit 1; }
+wait_for_partition $PART2 || { log "[ERROR] Partition 2 not found"; exit 1; }
 
 log "Formatting partitions..."
-mkfs.fat -F32 /dev/${DISK}1
-mkfs.ext4 -F /dev/${DISK}2
+mkfs.fat -F32 $PART1
+mkfs.ext4 -F $PART2
 
 log "Mounting partitions..."
-mount /dev/${DISK}2 /mnt
+mount $PART2 /mnt
 mkdir -p /mnt/boot/efi
-mount /dev/${DISK}1 /mnt/boot/efi
+mount $PART1 /mnt/boot/efi
 
 log "Finding boot source..."
 mkdir -p /tmp/src
 CANDIDATES=$(lsblk -rno NAME,TYPE | awk '$2=="disk" || $2=="part" || $2=="rom" {print "/dev/"$1}')
 for dev in $CANDIDATES; do
     [ -b "$dev" ] || continue
+    # Zieldisk und alle Partitionen davon ausschliessen
     case "$dev" in
         /dev/${DISK}*) continue ;;
     esac
