@@ -20,13 +20,29 @@ wait_for_partition() {
     return 1
 }
 
+list_disks() {
+    awk 'NR>2 && $4 !~ /loop/ && $3 > 1048576 {print $4}' /proc/partitions | \
+    grep -vE '[0-9]p[0-9]+$|[^0-9][0-9]+$'
+}
+
+list_all_block_devices() {
+    awk 'NR>2 && $4 !~ /loop/ {print "/dev/"$4}' /proc/partitions
+}
+
 clear
 echo "================================"
 echo "    Umbrella OS Installer       "
 echo "================================"
 echo ""
 
-lsblk -d -o NAME,SIZE,MODEL | grep -v loop
+echo "Available disks:"
+echo "NAME            SIZE  MODEL"
+for disk in $(list_disks); do
+    size=$(cat /sys/block/$disk/size 2>/dev/null || echo "0")
+    size_gb=$(( size * 512 / 1024 / 1024 / 1024 ))
+    model=$(cat /sys/block/$disk/device/model 2>/dev/null || echo "")
+    echo "  $disk        ${size_gb}G  $model"
+done
 echo ""
 
 printf "Enter target disk (e.g. sda, nvme0n1): "
@@ -46,7 +62,6 @@ parted -s /dev/$DISK mkpart primary fat32 1MiB 257MiB
 parted -s /dev/$DISK set 1 esp on
 parted -s /dev/$DISK mkpart primary ext4 257MiB 100%
 
-# NVMe Partitionen heissen nvme0n1p1, SATA heissen sda1
 if echo "$DISK" | grep -q "nvme"; then
     PART1="/dev/${DISK}p1"
     PART2="/dev/${DISK}p2"
@@ -70,10 +85,8 @@ mount $PART1 /mnt/boot/efi
 
 log "Finding boot source..."
 mkdir -p /tmp/src
-CANDIDATES=$(lsblk -rno NAME,TYPE | awk '$2=="disk" || $2=="part" || $2=="rom" {print "/dev/"$1}')
-for dev in $CANDIDATES; do
+for dev in $(list_all_block_devices); do
     [ -b "$dev" ] || continue
-    # Zieldisk und alle Partitionen davon ausschliessen
     case "$dev" in
         /dev/${DISK}*) continue ;;
     esac
