@@ -1,98 +1,52 @@
 # Umbrella OS
 
-A privacy-first Linux distribution that blocks tracking and de-anonymization vectors by default – no manual configuration required. Built to be used as a daily driver.
+A small, privacy-oriented Linux system built from scratch with the Linux kernel, BusyBox, GRUB and mkinitcpio. It is not based on any existing distribution.
 
-**Status:** Alpha – boots into a working shell with networking on real hardware and QEMU/KVM.
+This is mainly a personal project for my own use. It is experimental, incomplete and not meant as a replacement for an established distribution.
 
-**Audience:** Umbrella OS is intended for advanced users who are comfortable with Linux, the command line, and understand the security concepts involved.
-
----
-
-## Table of Contents
-
-- [What is Umbrella OS](#what-is-umbrella-os)
-- [Download](#download)
-- [Features](#features)
-- [Threat Model](#threat-model)
-- [Build from Source](#build-from-source)
-- [Project Structure](#project-structure)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [License](#license)
+**Status:** Alpha. Boots into a shell with networking on real hardware and in QEMU/KVM.
 
 ---
 
-## What is Umbrella OS
-
-Umbrella OS is a minimal Linux distribution built from scratch using the Linux kernel, BusyBox, GRUB, and mkinitcpio. It is not based on any existing distribution such as Ubuntu, Debian, or Arch Linux.
-
-The goal is a daily-drivable system where every known tracking and de-anonymization vector is blocked by default – without requiring the user to configure anything manually. Every protection mechanism is individually toggleable.
-
----
-
-## Download
-
-You do not need to build Umbrella OS yourself. Download the latest ISO and flash it to a USB drive.
-
-Releases will be published on the [Releases](https://github.com/C-Kaenel/Umbrella_OS/releases) page once Alpha stabilizes.
-
-Flash to USB:
-
-```bash
-sudo dd if=umbrella-os.iso of=/dev/sdX bs=4M status=progress conv=fsync
-```
-
-Replace `/dev/sdX` with your USB drive. Boot from USB and run the installer:
-
-```bash
-/installer/install.sh
-```
-
----
-
-## Features
+## What works
 
 | Feature | Status |
 |---|---|
-| Boots into BusyBox shell | Done |
-| Automatic network via DHCP | Done |
-| MAC address randomization on every boot | Done |
-| Installer for real hardware (GPT + EFI + ext4) | Done |
-| DNS over HTTPS | In Progress |
-| LUKS full disk encryption | In Progress |
-| Kernel hardening | In Progress |
-| Privacy-hardened browser | Planned |
-| Self-hosted VPN remote access | Planned |
-| Desktop environment | Planned |
+| Boot into a BusyBox shell (busybox init as PID 1) | Done |
+| Network via DHCP, interface detected automatically | Done |
+| Random MAC address on every boot | Done |
+| Local recursive DNS resolver (Unbound) with DNSSEC | Done |
+| Installer (GPT, EFI, ext4, GRUB) | Works, disk detection on real hardware still being tested |
+| Kernel hardening | Partly done |
+| LUKS disk encryption | Postponed |
+| Desktop, browser | Not started |
+
+### Known limitations
+
+- The whole system runs from the initramfs. The installer copies kernel and initramfs to disk, but there is no persistent root filesystem yet, so changes are lost on reboot.
+- DNS queries are resolved locally and validated with DNSSEC, but they are not encrypted.
+- Only x86_64 with UEFI is supported.
 
 ---
 
-## Threat Model
+## Goals
 
-Umbrella OS addresses four categories of threats:
-
-**1. Hardware / OS level**
-Hardware identifiers such as CPU serial numbers, MAC addresses, and TPM keys are not transmitted to external services. MAC addresses are randomized on every boot. No OS telemetry of any kind is present.
-
-**2. Network / ISP level**
-DNS queries are encrypted via DoH/DoT over trusted resolvers. WebRTC is disabled to prevent IP leaks. Optional Tor and VPN integration with leak protection is planned.
-
-**3. Browser level**
-The included browser will present a unified, generic fingerprint. Third-party cookies, supercookies, tracking pixels, and cross-site tracking are blocked. Per-service container isolation is planned.
-
-**4. Secure remote access**
-A self-hosted VPN tunnel provides remote access. When disabled, no ports are open and no background processes remain running.
+- No telemetry and as few identifying traits as possible (e.g. MAC randomization)
+- DNS handled locally instead of by the ISP
+- Keep the system small enough that every part is understood
 
 ---
 
-## Build from Source
+## Building
 
 ### Requirements
 
 - Arch Linux host
 - Linux kernel 6.12.25 compiled in `build/kernel/linux-6.12.25/`
 - BusyBox 1.37.0 compiled in `build/busybox-1.37.0/`
-- `grub`, `mkinitcpio`, `parted`, `dosfstools`, `e2fsprogs` installed on the host
+- `grub`, `mkinitcpio`, `parted`, `dosfstools`, `e2fsprogs`, `libisoburn` (for `grub-mkrescue`)
+
+Kernel and BusyBox configs are in `config/`.
 
 ### Build
 
@@ -102,69 +56,68 @@ cd Umbrella_OS
 sudo bash ./scripts/build.sh
 ```
 
+Note: the build installs the `umbrella` hook to `/etc/initcpio/install/` on the host.
+
 ### Test in QEMU
 
 ```bash
 qemu-system-x86_64 -cdrom umbrella-os.iso -m 512M -netdev user,id=net0 -device e1000,netdev=net0
 ```
 
+### Install on hardware
+
+Flash the ISO to a USB drive (replace `/dev/sdX`), boot from it and run the installer:
+
+```bash
+sudo dd if=umbrella-os.iso of=/dev/sdX bs=4M status=progress conv=fsync
+```
+
+```bash
+/installer/install.sh
+```
+
+The installer erases the selected disk completely.
+
 ---
 
-## Project Structure
-Curently outdated 
+## Project structure
 
 ```text
 umbrella_os/
-├── config/
-│   ├── busybox.config
-│   ├── kernel.config
-│   └── mkinitcpio.conf
+├── config/            kernel, BusyBox and mkinitcpio configs
 ├── installer/
-│   └── install.sh
-├── iso/
-│   └── boot/
-│       └── grub/
-│           └── grub.cfg
-├── scripts/
-│   ├── build.sh
-│   ├── init
-│   ├── inittab
-│   ├── mkinitcpio-hook-umbrella
-│   ├── profile
-│   ├── rcS
-│   ├── shell
-│   └── udhcpc.script
-├── SECURITY.md
-├── CONTRIBUTING.md
-├── .gitignore
-├── LICENSE
-└── README.md
+│   └── install.sh     disk installer (runs inside the live system)
+├── iso/boot/grub/     GRUB config for the ISO
+├── rootfs/            files copied into the initramfs
+│   ├── etc/           resolv.conf, Unbound config, root hints, trust anchor
+│   └── usr/sbin/      prebuilt unbound, unbound-anchor, cryptsetup
+└── scripts/
+    ├── build.sh                  builds initramfs and ISO
+    ├── mkinitcpio-hook-umbrella  defines what goes into the initramfs
+    ├── init                      first process, mounts /proc, /sys, /dev
+    ├── inittab                   busybox init config
+    ├── rcS                       boot script: MAC randomization, DHCP, Unbound
+    ├── udhcpc.script             applies DHCP leases
+    └── profile, shell            login environment
 ```
 
 ---
 
-## Roadmap
+## Next steps
 
-- **Alpha** – Bootable system with installer
-- **Alpha 4** – Script hardening, MAC randomization, reduced ISO size
-- **Beta** – DNS over HTTPS, LUKS full disk encryption, kernel hardening
-- **1.0** – Desktop environment, privacy-hardened browser, full daily driver
-
----
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-Security vulnerabilities must be reported privately – see [SECURITY.md](SECURITY.md).
+- Persistent root filesystem for installed systems
+- Finish installer testing on real hardware (NVMe, USB boot)
+- LUKS encryption
+- Encrypted DNS
 
 ---
 
 ## License
 
-MIT License – see [LICENSE](LICENSE) for details.
+MIT License, see [LICENSE](LICENSE).
 
 ---
 
 ## Disclaimer
 
-This project is experimental and under active development. It is not yet suitable for use as a primary system. Parts of the documentation may be written with AI assistance. The system itself is developed with minimized AI usage.
+This project is experimental. Use it at your own risk and not on machines with data you care about. Parts of the documentation may be written with AI assistance. The system itself is developed with minimized AI usage.

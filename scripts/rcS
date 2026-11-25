@@ -32,8 +32,5 @@ for iface in /sys/class/net/*/; do
     udhcpc -i "$iface" -q -s /etc/udhcpc.script -t 2 -T 1 -n && break
 done
 
-# Fetch DNSSEC root anchor in background (non-blocking)
-/usr/sbin/unbound-anchor -a /etc/unbound/root.key >/dev/null 2>&1 &
-
 # Start DNS resolver
 /usr/sbin/unbound -c /etc/unbound/unbound.conf
