@@ -27,11 +27,14 @@ else
 fi
 
 echo "==> [$(date +%H:%M:%S)] Installing mkinitcpio hook..."
-sudo cp "$ROOT_DIR/scripts/mkinitcpio-hook-umbrella" /etc/initcpio/install/umbrella
+sed "s|@ROOT_DIR@|$ROOT_DIR|g" "$ROOT_DIR/scripts/mkinitcpio-hook-umbrella" | \
+    sudo tee /etc/initcpio/install/umbrella >/dev/null
 
 touch "$ISO_DIR/boot/initramfs.img"
 echo "==> [$(date +%H:%M:%S)] Building initramfs with mkinitcpio..."
-sudo mkinitcpio -k "$(ls /lib/modules/ | grep lts | tail -1)" -c "$CONFIG_DIR/mkinitcpio.conf" -g "$ISO_DIR/boot/initramfs.img"
+KVER="$(ls /lib/modules/ | grep lts | tail -1)"
+[ -n "$KVER" ] || KVER="$(uname -r)"
+sudo mkinitcpio -k "$KVER" -c "$CONFIG_DIR/mkinitcpio.conf" -g "$ISO_DIR/boot/initramfs.img"
 
 echo "==> [$(date +%H:%M:%S)] Building ISO with grub-mkrescue..."
 grub-mkrescue -o "$OUTPUT_ISO" "$ISO_DIR"
