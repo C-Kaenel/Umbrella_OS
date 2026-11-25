@@ -24,9 +24,7 @@ case "$1" in
         [ "$cidr" = "0" ] && cidr=24
         ip addr flush dev "$interface"
         ip addr add "$ip/$cidr" dev "$interface"
-        [ -n "$router" ] && ip route add default via "$router"
-        # TODO Phase 3: Replace with DoH resolver, do not use ISP-provided DNS
-        [ -n "$dns" ] && printf "nameserver %s\n" $dns > /etc/resolv.conf
+        [ -n "$router" ] && ip route replace default via "$router" dev "$interface"
         echo "[net] $interface: $ip/$cidr via $router"
         ;;
     deconfig)
